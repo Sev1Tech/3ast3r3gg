@@ -21,7 +21,10 @@ var gameOptions = {
     carAcceleration: 0.01,
 
     // maximum car velocity
-    maxCarVelocity: 1
+    maxCarVelocity: 1,
+
+    //high score
+    highScore: 0
 }
 window.onload = function() {
     let gameConfig = {
@@ -73,7 +76,9 @@ class playGame extends Phaser.Scene{
         }
 
         // method to add the car, arguments represent x and y position
-        this.addCar(250, game.config.height / 2 - 70);
+        const posStartX = 250;
+        const posStartY = game.config.height / 2 - 70;
+        let car = this.addCar(posStartX,posStartY);
 
         // the car is not accelerating
         this.isAccelerating = false;
@@ -85,10 +90,32 @@ class playGame extends Phaser.Scene{
         // collision check between the diamond and the car. Any other diamond collision is not allowed
         this.matter.world.on("collisionstart", function(event, bodyA, bodyB){
             if((bodyA.label == "diamond" && bodyB.label != "car") || (bodyB.label == "diamond" && bodyA.label != "car")){
-                this.scene.start("PlayGame")
+                this.setHighScore(this.calculateScore(posStartX, posStartY, car.position.x, car.position.y));
+                this.displayHighScore();
+                this.scene.start("PlayGame");
             }
 
         }.bind(this));
+    }
+
+    // Set the high score if the player scored better
+    setHighScore(tempScore) {
+        gameOptions.highScore = tempScore > gameOptions.highScore ? tempScore : gameOptions.highScore;
+    }
+
+    // display the high score
+    displayHighScore() {
+        document.getElementById('highScoreDisplay').innerHTML = "High Score: " + gameOptions.highScore.toLocaleString();
+    }
+
+    // method to calculate score
+    calculateScore(posStartX, posStartY, posEndX, posEndY) {
+        return Math.round(this.calculateDistance(posStartX, posStartY, posEndX, posEndY));
+    }
+
+    // method to calculate distance
+    calculateDistance(posStartX, posStartY, posEndX, posEndY) {
+        return Math.sqrt( Math.pow((posEndX - posStartX), 2) + Math.pow((posEndY - posStartY), 2) );
     }
 
     // method to generate the terrain. Arguments: the graphics object and the start position
@@ -297,6 +324,8 @@ class playGame extends Phaser.Scene{
                 y: 10
             }
         });
+
+        return this.body;
     }
 
     // method to accelerate
