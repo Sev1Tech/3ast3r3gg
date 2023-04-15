@@ -1,4 +1,4 @@
-Aren't you a clever bunny? The magick incantation is:
+Aren't you a clever bunny? The magic incantation is:
 
 ```
 git clone https://github.com/Geocent/3ast3r3gg.git
